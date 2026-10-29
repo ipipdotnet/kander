@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "path": "droid",
+  "process_name": "droid",
+  "args": {
+    "start": ["--auto", "high", "--settings", "{droid_settings}"],
+    "resume": ["--resume", "{session}", "--auto", "high", "--settings", "{droid_settings}"],
+    "review": [
+      "exec", "--output-format", "json",
+      "--only-tools", "Read,Grep,Glob,LS",
+      "--model", "{model}", "--reasoning-effort", "{effort}",
+      "{instruction}"
+    ]
+  },
+  "session": {"mode": "hook:droid-sessions"},
+  "exit_command": "/quit",
+  "display_name": "Droid",
+  "supports_effort": true,
+  "prompt_delivery": {"mode": "argv"},
+  "review": {
+    "cwd": "root",
+    "home_policy": "optional",
+    "output_name": "output.json",
+    "inspection": "Use only Read, Grep, Glob, and LS. Never modify files, execute commands, or spawn subagents.",
+    "spawns_helpers": true,
+    "snapshot_spec": true,
+    "stdin": "none",
+    "output": {
+      "source": "stdout",
+      "parse": "json_field:result",
+      "success": [
+        {"json_field": "type", "equals": "result"},
+        {"json_field": "subtype", "equals": "success"},
+        {"json_field": "is_error", "equals": false}
+      ]
+    }
+  },
+  "rules_target": {"global": ".factory/AGENTS.md", "project": "AGENTS.md"},
+  "config_home": {"default": ".factory", "fixed": true},
+  "rules_integration": "markdown-reference",
+  "large_model": "",
+  "small_model": "",
+  "large_effort": "high",
+  "small_effort": "medium",
+  "model": "",
+  "effort": "high"
+}

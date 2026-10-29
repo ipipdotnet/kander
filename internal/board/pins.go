@@ -232,10 +232,18 @@ func ValidateCardPins(cfg *config.Config, pins CardPins) error {
 	return nil
 }
 
-// ExecutionTakesEffort reports whether the agent's start argv template consumes {effort}.
+// ExecutionTakesEffort reports whether start consumes effort directly or through Droid settings.
 func ExecutionTakesEffort(cfg *config.Config, agent string) bool {
 	def := config.AgentFor(cfg, agent)
-	return def.Args != nil && templateTakesEffort(def.Args.Start)
+	if def.Args == nil {
+		return false
+	}
+	for _, arg := range def.Args.Start {
+		if strings.Contains(arg, "{droid_settings}") {
+			return true
+		}
+	}
+	return templateTakesEffort(def.Args.Start)
 }
 
 // ReviewTakesEffort reports whether the agent's review argv template consumes {effort}.

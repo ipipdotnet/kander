@@ -173,6 +173,15 @@ func TestBuiltinStartKeepsPromptOnArgvAndDoesNotDeliverToPane(t *testing.T) {
 				}
 				captured = nil
 				id, _ := makeTodo(t, root, "argv-"+launcher+"-"+agent)
+				if agent == "droid" {
+					isolateDroid(t)
+					previousInvocation := newShellInvocation
+					newShellInvocation = func(p process.AgentProgram, args []string, env map[string]string) (process.ProcessInvocation, error) {
+						writeDroidSession(t, "project", "droid-session", parentDir(root), id)
+						return previousInvocation(p, args, env)
+					}
+					defer func() { newShellInvocation = previousInvocation }()
+				}
 				_, _, err := capture(t, func() error { return commandStart(root, agent, launcher, id) })
 				if err != nil {
 					t.Fatal(err)
@@ -186,7 +195,7 @@ func TestBuiltinStartKeepsPromptOnArgvAndDoesNotDeliverToPane(t *testing.T) {
 				if _, err := os.Stat(herdrLog + ".prompt"); !os.IsNotExist(err) {
 					t.Fatalf("argv path used agent prompt: %v", err)
 				}
-				if discovered {
+				if config.SessionPersistsAfterStart(session) {
 					snapshot, err := board.ReadSnapshot(root, id)
 					if err != nil {
 						t.Fatal(err)

@@ -61,6 +61,13 @@
         "large_model": "swe-2-max",
         "small_model": "swe-2-max"
       },
+      "droid": {
+        "large_effort": "high",
+        "large_model": "",
+        "model": "",
+        "small_effort": "medium",
+        "small_model": ""
+      },
       "grok": {
         "large_effort": "xhigh",
         "large_model": "",
@@ -101,6 +108,10 @@
       },
       "devin": {
         "model": "swe-2-max"
+      },
+      "droid": {
+        "effort": "high",
+        "model": ""
       },
       "grok": {
         "effort": "high",
@@ -154,6 +165,10 @@
       },
       "devin": {
         "model": "swe-2-max"
+      },
+      "droid": {
+        "effort": "high",
+        "model": ""
       },
       "grok": {
         "effort": "xhigh",

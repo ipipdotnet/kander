@@ -376,6 +376,8 @@ func runSessionDiscoverHook(session *config.AgentSessionDefinition, taskID strin
 	switch name {
 	case "codex-rollout":
 		return discoverNewCodexSession(taskID, launchStart, cwd, budget(sessionDiscoverWait))
+	case "droid-sessions":
+		return discoverDroidSession(previous, taskID, cwd, budget(sessionDiscoverWait))
 	default:
 		return "", launchError("launch.unsupported_agent", name)
 	}
@@ -406,6 +408,8 @@ func sessionDiscoverSnapshot(session *config.AgentSessionDefinition, taskID stri
 		return previous, nil
 	}
 	switch name {
+	case "droid-sessions":
+		return snapshotDroidSessions(budget(sessionDiscoverWait))
 	case "codex-rollout":
 		// Codex discovery selects new sessions by creation time, so no rollout is
 		// read before launch; only an unusable sessions root fails early.
@@ -633,7 +637,13 @@ func expandAgentInvocation(agent, modelID, effort string, session AgentSession, 
 		reference = ""
 		template = config.RewriteKeepSession(template, true)
 	}
-	return config.ExpandAgentArgs(template, modelID, effort, reference), nil
+	// Resolve the settings placeholder before ordinary substitution: model and
+	// effort strings are data and must never become additional placeholders.
+	settingsFile, err := droidSettingsFile(template, modelID, effort)
+	if err != nil {
+		return nil, err
+	}
+	return config.ExpandAgentArgs(template, modelID, effort, reference, settingsFile), nil
 }
 
 func requireAgentProgram(agentName string, configs ...*config.Config) (*process.AgentProgram, error) {

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Add Factory Droid CLI as a built-in execution, Chat, and review agent. Interactive launches use process-only model/effort settings; task starts bind a newly created session by working directory and task instruction, and resume / notify recovery use its exact ID. Install and doctor integrate Droid's `AGENTS.md` rules. Reviews use `droid exec` with a read-only tool allowlist and validated JSON completion output.
+
 ## v1.0.0 — 2026-10-29
 
 - Microsoft Store: kander can ship as an MSIX package for Windows (x64 and arm64) with the `kander.exe` execution alias. A Start menu launch opens the board. The package turns off file and registry write virtualization so agents outside the package can read the task files kander writes under `%TEMP%`; it needs Windows 10 2004 (build 19041) or later. The Store's package version rules start the version line at 1.0.0, because a Store version cannot begin with 0.

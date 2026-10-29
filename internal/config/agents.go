@@ -404,15 +404,21 @@ func validateAgentDefinitions(raw any) (map[string]AgentDefinition, error) {
 }
 
 func invalidPlaceholder(arg string) bool {
-	rest := strings.NewReplacer("{model}", "", "{effort}", "", "{session=}", "", "{session}", "").Replace(arg)
+	rest := strings.NewReplacer("{model}", "", "{effort}", "", "{session=}", "", "{session}", "", "{droid_settings}", "").Replace(arg)
 	return strings.ContainsAny(rest, "{}")
 }
 
 // ExpandAgentArgs replaces text within individual argv elements, never shell text.
 // An empty {model}, {effort}, or {session} removes its element and its immediately
 // preceding literal flag. {session=} always substitutes, including an empty value,
-// so a session flag can stay present when the id is not yet known.
-func ExpandAgentArgs(template []string, model, effort, session string) []string {
+// so a session flag can stay present when the id is not yet known. Launch resolves
+// {droid_settings} to a cached JSON file and supplies its path through settingsFile;
+// substitution stays non-recursive, including braces inside paths and model IDs.
+func ExpandAgentArgs(template []string, model, effort, session string, settingsFile ...string) []string {
+	settings := "{droid_settings}"
+	if len(settingsFile) > 0 {
+		settings = settingsFile[0]
+	}
 	values := map[string]string{"{model}": model, "{effort}": effort, "{session}": session}
 	var out []string
 	for i, arg := range template {
@@ -432,7 +438,7 @@ func ExpandAgentArgs(template []string, model, effort, session string) []string 
 			}
 			continue
 		}
-		out = append(out, strings.NewReplacer("{session=}", session, "{model}", model, "{effort}", effort, "{session}", session).Replace(arg))
+		out = append(out, strings.NewReplacer("{session=}", session, "{model}", model, "{effort}", effort, "{session}", session, "{droid_settings}", settings).Replace(arg))
 	}
 	return out
 }
